@@ -5,11 +5,11 @@
 
 class DFA{
 private:
-    std::set<int> states;
+    std::set<char> states;
     std::set<char> alphabet;
     int transitionTable[256][256];
-    int startState;
-    std::set<int> finalStates;
+    char startState;
+    std::set<char> finalStates;
 
     int numberOfStates;
     int numberOfLetters;
@@ -29,7 +29,7 @@ public:
         f >> numberOfStates;
 
         for(int i = 0; i < numberOfStates; i++){
-            int x;
+            char x;
             f >> x;
             states.insert(x);
         }
@@ -50,7 +50,7 @@ public:
         f >> numberOfFinalStates;
 
         for(int i = 0; i < numberOfFinalStates; i++){
-            int x;
+            char x;
             f >> x;
             finalStates.insert(x);
         }
@@ -59,20 +59,33 @@ public:
         f >> numberOfTransitions;
 
         for(int i = 0; i < numberOfTransitions; i++){
-            int x, z;
+            char x, z;
             char y;
             f >> x >> y >> z;
 
-            transitionTable[x][(int)y] = z;
+            transitionTable[(int)x][(int)y] = (int) z;
         }
     }
 
     bool tryWord(std::string word){
+        const bool isFirstFinal = finalStates.find(startState) != finalStates.end();
+        if(word=="$$LAMBDA$$" && isFirstFinal){
+            return true;
+        }
+        else if(word=="$$LAMBDA$$")
+            return false;
+        /*
+        for(int i = 0; i < 128; i++){
+            for(int j = 0; j < 128; j++)
+                std::cout<<transitionTable[i][j]<<" ";
+            std::cout<<std::endl;
+        }
+*/
         // the current state is the starting state
-        int currentState = startState;
+        char currentState = startState;
         // we parse each letter through the automata
         for(int i = 0; i < word.length(); i++){
-            currentState = transitionTable[currentState][word[i]];
+            currentState = (char) transitionTable[(int)currentState][(int)word[i]];
             if(currentState == -1){
                 // if we make an impossible transition then we reject it
                 return false;
@@ -91,6 +104,7 @@ public:
 
 int main(){
     DFA test("automata.in");
+    DFA test2("automata2.in");
     std::ifstream f("words.in");
     std::ofstream g("words.out");
 
